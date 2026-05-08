@@ -1,0 +1,72 @@
+// Prisma schema for HERMES_KILO
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Users from Telegram
+model User {
+  id            Int       @id @default(autoincrement())
+  telegramId    BigInt    @unique @map("telegram_id")
+  username      String?
+  firstName     String    @map("first_name")
+  lastName      String?   @map("last_name")
+  languageCode  String?   @map("language_code")
+  isPremium     Boolean   @default(false) @map("is_premium")
+  starsBalance  Int       @default(0) @map("stars_balance")
+  createdAt     DateTime  @default(now()) @map("created_at")
+  updatedAt     DateTime  @updatedAt @map("updated_at")
+
+  gameProgress  GameProgress?
+  transactions  Transaction[]
+
+  @@map("users")
+}
+
+// Game progress
+model GameProgress {
+  id          Int      @id @default(autoincrement())
+  userId      Int      @unique @map("user_id")
+  level       Int      @default(1)
+  score       Int      @default(0)
+  achievements Json?   
+  lastPlayed  DateTime @default(now()) @map("last_played")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  user        User     @relation(fields: [userId], references: [id])
+
+  @@map("game_progress")
+}
+
+// Search history
+model SearchQuery {
+  id          Int      @id @default(autoincrement())
+  userId      Int      @map("user_id")
+  query       String
+  results     Int      @default(0)
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  @@map("search_queries")
+}
+
+// Transactions (Telegram Stars)
+model Transaction {
+  id          String   @id @default(cuid())
+  userId      Int      @map("user_id")
+  amount      Int      
+  type        String   // "purchase", "reward", "spend"
+  status      String   @default("pending") // "pending", "completed", "failed"
+  description String?
+  telegramInvoiceId String? @map("telegram_invoice_id")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  user        User     @relation(fields: [userId], references: [id])
+
+  @@map("transactions")
+}
