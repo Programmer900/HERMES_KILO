@@ -1,5 +1,7 @@
 import { useState } from 'react'
 import { useWebApp } from '../hooks/useWebApp'
+import PageLayout from '../components/ui/PageLayout'
+import Card from '../components/ui/Card'
 
 export default function Game() {
   const { tg } = useWebApp()
@@ -19,13 +21,9 @@ export default function Game() {
   }
 
   return (
-    <div className="p-4 pb-20">
-      <h1 className="text-3xl font-bold mb-6 bg-gradient-to-r from-green-500 to-blue-600 bg-clip-text text-transparent">
-        Game
-      </h1>
-
+    <PageLayout title="Game" gradientFrom="from-green-500" gradientTo="to-blue-600">
       <div className="space-y-6">
-        <div className="bg-gray-800/50 rounded-xl p-6 backdrop-blur-sm">
+        <Card>
           <div className="flex justify-between items-center mb-4">
             <div>
               <div className="text-gray-400 text-sm">Level</div>
@@ -50,16 +48,16 @@ export default function Game() {
           >
             TAP ME!
           </button>
-        </div>
+        </Card>
 
-        <div className="bg-gray-800/50 rounded-xl p-4 backdrop-blur-sm">
+        <Card compact>
           <h3 className="font-semibold mb-2">How to Play</h3>
           <p className="text-gray-400 text-sm">
             Tap the button to earn points. Every {level * 100} points you level up! 
             Higher levels give more points per tap.
           </p>
-        </div>
+        </Card>
       </div>
-    </div>
+    </PageLayout>
   )
 }
