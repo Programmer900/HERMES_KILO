@@ -1,9 +1,11 @@
 import { FastifyInstance } from 'fastify';
+import { authRouteOptions, sendError } from '../utils/route-helpers';
+import { TelegramAuthBody } from '../utils/types';
 
 export async function authRoutes(app: FastifyInstance) {
   // Telegram login verification
   app.post('/auth/telegram', async (request, reply) => {
-    const { initData } = request.body as { initData: string };
+    const { initData } = request.body as TelegramAuthBody;
     
     // TODO: Verify Telegram WebApp initData
     // For now, just parse user data
@@ -11,7 +13,7 @@ export async function authRoutes(app: FastifyInstance) {
     const userStr = urlParams.get('user');
     
     if (!userStr) {
-      return reply.code(401).send({ error: 'Invalid initData' });
+      return sendError(reply, 401, 'Invalid initData');
     }
     
     const user = JSON.parse(userStr);
@@ -27,7 +29,7 @@ export async function authRoutes(app: FastifyInstance) {
   });
 
   // Get current user profile
-  app.get('/auth/me', { preValidation: [app.authenticate] }, async (request, reply) => {
+  app.get('/auth/me', authRouteOptions(app), async (request, reply) => {
     return (request as any).user;
   });
 }

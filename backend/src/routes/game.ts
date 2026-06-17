@@ -1,8 +1,12 @@
 import { FastifyInstance } from 'fastify';
+import { authRouteOptions, sendSuccess } from '../utils/route-helpers';
+import { GameProgressBody } from '../utils/types';
 
 export async function gameRoutes(app: FastifyInstance) {
+  const auth = authRouteOptions(app);
+
   // Get game progress
-  app.get('/game/progress', { preValidation: [app.authenticate] }, async (request, reply) => {
+  app.get('/game/progress', auth, async (request, reply) => {
     // TODO: Get from database
     return {
       level: 1,
@@ -12,11 +16,11 @@ export async function gameRoutes(app: FastifyInstance) {
   });
 
   // Update game progress
-  app.post('/game/progress', { preValidation: [app.authenticate] }, async (request, reply) => {
-    const { score, level } = request.body as { score: number; level: number };
+  app.post('/game/progress', auth, async (request, reply) => {
+    const { score, level } = request.body as GameProgressBody;
     
     // TODO: Save to database
-    return { success: true, score, level };
+    return sendSuccess({ score, level });
   });
 
   // Get leaderboard

@@ -1,4 +1,6 @@
 import { useState } from 'react'
+import PageLayout from '../components/ui/PageLayout'
+import Card from '../components/ui/Card'
 
 export default function Search() {
   const [query, setQuery] = useState('')
@@ -27,11 +29,7 @@ export default function Search() {
   }
 
   return (
-    <div className="p-4 pb-20">
-      <h1 className="text-3xl font-bold mb-6 bg-gradient-to-r from-purple-500 to-pink-600 bg-clip-text text-transparent">
-        Search
-      </h1>
-
+    <PageLayout title="Search" gradientFrom="from-purple-500" gradientTo="to-pink-600">
       <form onSubmit={handleSearch} className="mb-6">
         <div className="flex gap-2">
           <input
@@ -60,13 +58,14 @@ export default function Search() {
       {!loading && results.length > 0 && (
         <div className="space-y-3">
           {results.map((result) => (
-            <div
+            <Card
               key={result.id}
-              className="bg-gray-800/50 rounded-xl p-4 backdrop-blur-sm hover:bg-gray-800/70 transition-colors cursor-pointer"
+              compact
+              className="hover:bg-gray-800/70 transition-colors cursor-pointer"
             >
               <h3 className="font-semibold text-purple-400">{result.title}</h3>
               <p className="text-gray-400 text-sm mt-1">{result.description}</p>
-            </div>
+            </Card>
           ))}
         </div>
       )}
@@ -76,6 +75,6 @@ export default function Search() {
           No results found
         </div>
       )}
-    </div>
+    </PageLayout>
   )
 }
