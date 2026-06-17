@@ -46,12 +46,14 @@ interface WebAppContextType {
   tg: typeof window.Telegram.WebApp | null
   user: typeof window.Telegram.WebApp.initDataUnsafe.user | null
   isAuthenticated: boolean
+  error: string | null
 }
 
 const WebAppContext = createContext<WebAppContextType>({
   tg: null,
   user: null,
-  isAuthenticated: false
+  isAuthenticated: false,
+  error: null
 })
 
 export const useWebApp = () => useContext(WebAppContext)
@@ -59,19 +61,28 @@ export const useWebApp = () => useContext(WebAppContext)
 export function WebAppProvider({ children }: { children: ReactNode }) {
   const [tg, setTg] = useState<typeof window.Telegram.WebApp | null>(null)
   const [user, setUser] = useState<typeof window.Telegram.WebApp.initDataUnsafe.user | null>(null)
+  const [error, setError] = useState<string | null>(null)
 
   useEffect(() => {
-    if (window.Telegram?.WebApp) {
-      const webapp = window.Telegram.WebApp
-      webapp.ready()
-      webapp.expand()
-      setTg(webapp)
-      setUser(webapp.initDataUnsafe.user || null)
+    try {
+      if (window.Telegram?.WebApp) {
+        const webapp = window.Telegram.WebApp
+        webapp.ready()
+        webapp.expand()
+        setTg(webapp)
+        setUser(webapp.initDataUnsafe.user || null)
+      } else {
+        setError('Telegram WebApp SDK not available — open this app inside Telegram')
+      }
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Failed to initialise Telegram WebApp'
+      console.error('WebApp init error:', err)
+      setError(message)
     }
   }, [])
 
   return (
-    <WebAppContext.Provider value={{ tg, user, isAuthenticated: !!user }}>
+    <WebAppContext.Provider value={{ tg, user, isAuthenticated: !!user, error }}>
       {children}
     </WebAppContext.Provider>
   )

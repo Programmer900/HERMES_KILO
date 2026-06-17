@@ -13,8 +13,22 @@ export async function gameRoutes(app: FastifyInstance) {
 
   // Update game progress
   app.post('/game/progress', { preValidation: [app.authenticate] }, async (request, reply) => {
-    const { score, level } = request.body as { score: number; level: number };
-    
+    const body = request.body as Record<string, unknown> | null;
+
+    if (
+      !body ||
+      typeof body.score !== 'number' ||
+      typeof body.level !== 'number'
+    ) {
+      return reply.code(400).send({ error: 'Missing or invalid score/level (must be numbers)' });
+    }
+
+    if (body.score < 0 || body.level < 1) {
+      return reply.code(400).send({ error: 'score must be >= 0 and level must be >= 1' });
+    }
+
+    const { score, level } = body as { score: number; level: number };
+
     // TODO: Save to database
     return { success: true, score, level };
   });

@@ -4,26 +4,35 @@ export default function Search() {
   const [query, setQuery] = useState('')
   const [results, setResults] = useState<Array<{id: number, title: string, description: string}>>([])
   const [loading, setLoading] = useState(false)
+  const [error, setError] = useState<string | null>(null)
 
   const handleSearch = async (e: React.FormEvent) => {
     e.preventDefault()
     if (!query.trim()) return
 
     setLoading(true)
+    setError(null)
     
     // TODO: Connect to backend API
     // const response = await fetch(`/api/search?q=${encodeURIComponent(query)}`)
     // const data = await response.json()
     
     // Mock data for now
-    setTimeout(() => {
+    try {
+      await new Promise<void>((resolve) => setTimeout(resolve, 500))
       setResults([
         { id: 1, title: 'Result 1', description: 'This is a sample search result' },
         { id: 2, title: 'Result 2', description: 'Another example result for testing' },
         { id: 3, title: 'Result 3', description: 'More results will appear here' },
       ])
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Search failed'
+      console.error('Search error:', err)
+      setError(message)
+      setResults([])
+    } finally {
       setLoading(false)
-    }, 500)
+    }
   }
 
   return (
@@ -46,10 +55,16 @@ export default function Search() {
             disabled={loading}
             className="px-6 py-3 bg-gradient-to-r from-purple-500 to-pink-600 rounded-xl font-semibold hover:opacity-90 active:scale-95 transition-all disabled:opacity-50"
           >
-            {loading ? '⏳' : '🔍'}
+            {loading ? '\u23F3' : '\uD83D\uDD0D'}
           </button>
         </div>
       </form>
+
+      {error && (
+        <div className="mb-4 bg-red-900/30 border border-red-700 rounded-xl p-4 text-red-300 text-sm">
+          {error}
+        </div>
+      )}
 
       {loading && (
         <div className="text-center py-8">
@@ -71,7 +86,7 @@ export default function Search() {
         </div>
       )}
 
-      {!loading && results.length === 0 && query && (
+      {!loading && !error && results.length === 0 && query && (
         <div className="text-center py-8 text-gray-400">
           No results found
         </div>

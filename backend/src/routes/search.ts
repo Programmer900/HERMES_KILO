@@ -2,8 +2,9 @@ import { FastifyInstance } from 'fastify';
 
 export async function searchRoutes(app: FastifyInstance) {
   app.get('/search', { preValidation: [app.authenticate] }, async (request, reply) => {
-    const { q } = request.query as { q: string };
-    
+    const query = request.query as Record<string, unknown>;
+    const q = typeof query.q === 'string' ? query.q.trim() : '';
+
     if (!q || q.length < 2) {
       return reply.code(400).send({ error: 'Query must be at least 2 characters' });
     }
@@ -21,7 +22,15 @@ export async function searchRoutes(app: FastifyInstance) {
 
   // Save search history
   app.post('/search/history', { preValidation: [app.authenticate] }, async (request, reply) => {
-    const { query, resultsCount } = request.body as { query: string; resultsCount: number };
+    const body = request.body as Record<string, unknown> | null;
+
+    if (
+      !body ||
+      typeof body.query !== 'string' ||
+      typeof body.resultsCount !== 'number'
+    ) {
+      return reply.code(400).send({ error: 'Missing or invalid query/resultsCount' });
+    }
     
     // TODO: Save to database
     return { success: true };
