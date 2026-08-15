@@ -16,31 +16,109 @@ model User {
   firstName     String    @map("first_name")
   lastName      String?   @map("last_name")
   languageCode  String?   @map("language_code")
+  photoUrl      String?   @map("photo_url")
   isPremium     Boolean   @default(false) @map("is_premium")
   starsBalance  Int       @default(0) @map("stars_balance")
+  bio           String?
+  level         Int       @default(1)
+  totalScore    Int       @default(0) @map("total_score")
+  comboStreak   Int       @default(0) @map("combo_streak")
+  lastActiveAt  DateTime  @default(now()) @map("last_active_at")
   createdAt     DateTime  @default(now()) @map("created_at")
   updatedAt     DateTime  @updatedAt @map("updated_at")
 
   gameProgress  GameProgress?
   transactions  Transaction[]
+  achievements  UserAchievement[]
+  purchases     Purchase[]
+  searchQueries SearchQuery[]
 
   @@map("users")
 }
 
 // Game progress
 model GameProgress {
+  id            Int      @id @default(autoincrement())
+  userId        Int      @unique @map("user_id")
+  level         Int      @default(1)
+  score         Int      @default(0)
+  highScore     Int      @default(0) @map("high_score")
+  comboMultiplier Float  @default(1.0) @map("combo_multiplier")
+  gamesPlayed   Int      @default(0) @map("games_played")
+  totalPlayTime Int      @default(0) @map("total_play_time") // seconds
+  lastPlayed    DateTime @default(now()) @map("last_played")
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  user          User     @relation(fields: [userId], references: [id])
+
+  @@map("game_progress")
+}
+
+// Achievement definitions
+model Achievement {
   id          Int      @id @default(autoincrement())
-  userId      Int      @unique @map("user_id")
-  level       Int      @default(1)
-  score       Int      @default(0)
-  achievements Json?   
-  lastPlayed  DateTime @default(now()) @map("last_played")
+  key         String   @unique
+  name        String
+  description String
+  icon        String?
+  category    String   @default("general")
+  points      Int      @default(10)
+  requirement Json?    // { type: "score", value: 1000 } or { type: "games", value: 50 }
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  users       UserAchievement[]
+
+  @@map("achievements")
+}
+
+// User achievement unlocks
+model UserAchievement {
+  id            Int        @id @default(autoincrement())
+  userId        Int        @map("user_id")
+  achievementId Int        @map("achievement_id")
+  unlockedAt   DateTime   @default(now()) @map("unlocked_at")
+
+  user          User       @relation(fields: [userId], references: [id])
+  achievement   Achievement @relation(fields: [achievementId], references: [id])
+
+  @@unique([userId, achievementId])
+  @@map("user_achievements")
+}
+
+// Shop items
+model ShopItem {
+  id          Int      @id @default(autoincrement())
+  key         String   @unique
+  name        String
+  description String
+  icon        String?
+  category    String   @default("general") // "general", "booster", "cosmetic"
+  price       Int      // in Stars
+  isActive    Boolean  @default(true) @map("is_active")
+  metadata    Json?    // item-specific data
   createdAt   DateTime @default(now()) @map("created_at")
   updatedAt   DateTime @updatedAt @map("updated_at")
 
-  user        User     @relation(fields: [userId], references: [id])
+  purchases   Purchase[]
 
-  @@map("game_progress")
+  @@map("shop_items")
+}
+
+// Purchase records
+model Purchase {
+  id          Int      @id @default(autoincrement())
+  userId      Int      @map("user_id")
+  itemId      Int      @map("item_id")
+  quantity    Int      @default(1)
+  totalCost   Int      @map("total_cost")
+  status      String   @default("completed") // "pending", "completed", "refunded"
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  user        User     @relation(fields: [userId], references: [id])
+  item        ShopItem @relation(fields: [itemId], references: [id])
+
+  @@map("purchases")
 }
 
 // Search history
@@ -51,6 +129,9 @@ model SearchQuery {
   results     Int      @default(0)
   createdAt   DateTime @default(now()) @map("created_at")
 
+  user        User     @relation(fields: [userId], references: [id])
+
+  @@index([userId, createdAt])
   @@map("search_queries")
 }
 
@@ -58,7 +139,7 @@ model SearchQuery {
 model Transaction {
   id          String   @id @default(cuid())
   userId      Int      @map("user_id")
-  amount      Int      
+  amount      Int
   type        String   // "purchase", "reward", "spend"
   status      String   @default("pending") // "pending", "completed", "failed"
   description String?

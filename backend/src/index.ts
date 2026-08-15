@@ -6,6 +6,9 @@ import { authRoutes } from './routes/auth';
 import { gameRoutes } from './routes/game';
 import { searchRoutes } from './routes/search';
 import { paymentRoutes } from './routes/payment';
+import { profileRoutes } from './routes/profile';
+import { shopRoutes } from './routes/shop';
+import { leaderboardRoutes } from './routes/leaderboard';
 
 const app = Fastify({
   logger: {
@@ -24,11 +27,23 @@ await app.register(jwt, {
   sign: { expiresIn: env.JWT_EXPIRES_IN }
 });
 
+// Auth decorator — verifies JWT from Authorization header
+app.decorate('authenticate', async (request: any, reply: any) => {
+  try {
+    await request.jwtVerify();
+  } catch (err) {
+    reply.code(401).send({ error: 'Unauthorized' });
+  }
+});
+
 // Register routes
 await app.register(authRoutes, { prefix: '/api/auth' });
 await app.register(gameRoutes, { prefix: '/api/game' });
 await app.register(searchRoutes, { prefix: '/api/search' });
 await app.register(paymentRoutes, { prefix: '/api/payment' });
+await app.register(profileRoutes, { prefix: '/api/profile' });
+await app.register(shopRoutes, { prefix: '/api/shop' });
+await app.register(leaderboardRoutes, { prefix: '/api/leaderboard' });
 
 // Health check
 app.get('/health', async () => {
@@ -37,10 +52,10 @@ app.get('/health', async () => {
 
 // Root
 app.get('/', async () => {
-  return { 
-    name: env.APP_NAME, 
+  return {
+    name: env.APP_NAME,
     version: env.APP_VERSION,
-    message: 'HERMES_KILO API is running' 
+    message: 'HERMES_KILO API is running'
   };
 });
 

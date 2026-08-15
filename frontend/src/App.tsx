@@ -3,6 +3,9 @@ import { WebAppProvider } from './hooks/useWebApp'
 import Dashboard from './pages/Dashboard'
 import Game from './pages/Game'
 import Search from './pages/Search'
+import Profile from './pages/Profile'
+import Leaderboard from './pages/Leaderboard'
+import Shop from './pages/Shop'
 import Navigation from './components/Navigation'
 
 function App() {
@@ -14,6 +17,9 @@ function App() {
             <Route path="/" element={<Dashboard />} />
             <Route path="/game" element={<Game />} />
             <Route path="/search" element={<Search />} />
+            <Route path="/profile" element={<Profile />} />
+            <Route path="/leaderboard" element={<Leaderboard />} />
+            <Route path="/shop" element={<Shop />} />
           </Routes>
           <Navigation />
         </div>
