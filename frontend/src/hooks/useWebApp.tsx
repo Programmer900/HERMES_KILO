@@ -42,9 +42,12 @@ declare global {
   }
 }
 
+type WebAppType = NonNullable<typeof window.Telegram>['WebApp']
+type UserType = WebAppType['initDataUnsafe']['user']
+
 interface WebAppContextType {
-  tg: typeof window.Telegram.WebApp | null
-  user: typeof window.Telegram.WebApp.initDataUnsafe.user | null
+  tg: WebAppType | null
+  user: UserType | null
   isAuthenticated: boolean
 }
 
@@ -57,8 +60,8 @@ const WebAppContext = createContext<WebAppContextType>({
 export const useWebApp = () => useContext(WebAppContext)
 
 export function WebAppProvider({ children }: { children: ReactNode }) {
-  const [tg, setTg] = useState<typeof window.Telegram.WebApp | null>(null)
-  const [user, setUser] = useState<typeof window.Telegram.WebApp.initDataUnsafe.user | null>(null)
+  const [tg, setTg] = useState<WebAppType | null>(null)
+  const [user, setUser] = useState<UserType | null>(null)
 
   useEffect(() => {
     if (window.Telegram?.WebApp) {

@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom'
 import { useWebApp } from '../hooks/useWebApp'
 import { useStore } from '../store/useStore'
 import { gameApi, userApi } from '../api/client'
-import type { Activity } from '../api/client'
+
 
 // Animated counter that counts up to target value
 function AnimatedCounter({ target, duration = 1000, prefix = '', suffix = '' }: { target: number; duration?: number; prefix?: string; suffix?: string }) {

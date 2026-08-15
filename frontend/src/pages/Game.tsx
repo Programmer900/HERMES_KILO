@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback, useRef } from 'react'
 import { useWebApp } from '../hooks/useWebApp'
 import { useStore } from '../store/useStore'
 import { gameApi } from '../api/client'
-import type { Achievement, LeaderboardEntry } from '../api/client'
+import type { LeaderboardEntry } from '../api/client'
 
 // Floating +N text that animates upward
 function FloatingScore({ amount, x, y }: { amount: number; x: number; y: number }) {

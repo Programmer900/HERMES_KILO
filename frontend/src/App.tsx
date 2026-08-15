@@ -12,7 +12,7 @@ function App() {
   return (
     <WebAppProvider>
       <BrowserRouter>
-        <div className="min-h-screen bg-gradient-to-br from-gray-900 to-gray-800">
+        <div className="min-h-screen bg-gradient-to-br from-gray-900 to-gray-800 text-white">
           <Routes>
             <Route path="/" element={<Dashboard />} />
             <Route path="/game" element={<Game />} />
